@@ -17,7 +17,7 @@ public class Main {
 		Employee employee1 = new Employee("EMPALTI1", "Nagababu", "Software", 1800000);
 		Employee employee2 = new Employee("EMPALTI2", "Naresh", "Software", 1400000);
 		Employee employee3 = new Employee("EMPALTI3", "Suresh", "Senior Software", 2300000);
-		Employee employee4 = new Employee("EMPALTI4", "Rajesh", "Senior Software", 2800000);
+		Employee employee4 = new Employee("EMPALTI4", "Rajesh", "Senior Software", 3500000);
 		Employee employee5 = new Employee("EMPALTI5", "Satish", "Manager", 3500000);
 		employeeList.add(employee1);
 		employeeList.add(employee2);
@@ -90,9 +90,17 @@ public class Main {
 		// Grouping based on Designation
 		System.out.println(employeeList.stream().collect(Collectors.groupingBy(Employee::getDesignation)));
 		// Print the name of the employee whose salary is highest
-		String maxSalaryEmp = employeeList.stream().collect(Collectors.collectingAndThen(
-				Collectors.maxBy(Comparator.comparing(Employee::getSalary)), emp -> emp.get().getEmployeeName()));
-		System.out.println("Max salaried employee's name: " + maxSalaryEmp);
+		System.out.println(employeeList.stream().collect(
+				Collectors.groupingBy(Employee::getSalary,
+				Collectors.collectingAndThen(
+				Collectors.toList(), e->e.stream()
+				.sorted(Comparator.comparing(Employee::getSalary).reversed())
+				.map(t->t.getEmployeeName())
+				.collect(Collectors.toList())
+				))).entrySet().stream()
+				.sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+		        .map(t->t.getValue())
+		        .findFirst().get());
 		// Print the name of the employees whose salary is second highest based on their designation
 		Map<String, String> topEmployeesByDesignation = employeeList.stream()
 				.collect(Collectors.groupingBy(Employee::getDesignation,
@@ -105,13 +113,17 @@ public class Main {
 				.collect(Collectors.collectingAndThen(Collectors.toList(),list -> list.stream().sorted(Comparator.comparing(Employee::getSalary).reversed())
 				.map(t -> t.getEmployeeName()).skip(1).findFirst().orElse("No Employee Found"))));
 	    //Parallel Streaming
-		long startTime = System.currentTimeMillis();
-		IntStream.rangeClosed(1, 10000).forEach(t->System.out.println(Thread.currentThread().getName()));
-		long endTime = System.currentTimeMillis();
-		System.out.println("Time taken to finish the sequential stream----"+(endTime-startTime));
-		long startTimeParallel = System.currentTimeMillis();
-		IntStream.rangeClosed(1, 10000).parallel().forEach(t->System.out.println(Thread.currentThread().getName()));
-		long endTimeParallel = System.currentTimeMillis();
-		System.out.println("Time taken to finish the parallel stream----"+(endTimeParallel-startTimeParallel));
+		/*
+		 * long startTime = System.currentTimeMillis(); IntStream.rangeClosed(1,
+		 * 10000).forEach(t->System.out.println(Thread.currentThread().getName())); long
+		 * endTime = System.currentTimeMillis();
+		 * System.out.println("Time taken to finish the sequential stream----"+(endTime-
+		 * startTime)); long startTimeParallel = System.currentTimeMillis();
+		 * IntStream.rangeClosed(1,
+		 * 10000).parallel().forEach(t->System.out.println(Thread.currentThread().
+		 * getName())); long endTimeParallel = System.currentTimeMillis();
+		 * System.out.println("Time taken to finish the parallel stream----"+(
+		 * endTimeParallel-startTimeParallel));
+		 */
 	}
 }
